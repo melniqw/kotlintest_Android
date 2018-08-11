@@ -1,4 +1,4 @@
-package me.melnikov.kotlintest
+package me.melnikov.kotlintest.utils
 
 /**
  * Created by melniqw on 01.08.2018.

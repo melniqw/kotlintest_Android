@@ -1,4 +1,4 @@
-package me.melnikov.kotlintest
+package me.melnikov.kotlintest.utils
 
 fun Any?.toString(): String {
     if (this == null) return "null"
