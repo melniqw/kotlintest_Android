@@ -1,0 +1,44 @@
+defaults: &defaults
+  working_directory: ~/code
+  docker:
+    - image: circleci/android:api-27-alpha
+
+version: 2
+
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum  "gradle.properties" }}
+      - run: echo $SECRET | base64 --decode | tar -zxvf - -C /secret
+      - run: ll secret
+      - run:
+          name: Build
+          command: ./gradlew aOriginalDebug --no-daemon -PdisablePreDex -Pdisable-perf-plugin
+      - save_cache:
+          paths:
+            - ~/.gradle
+            - ~/code/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum  "gradle.properties" }}
+
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum  "gradle.properties" }}
+      - run:
+          name: Build
+          command: ./gradlew aOriginalRelease --no-daemon -PdisablePreDex -Pdisable-perf-plugin
+
+workflows:
+  version: 2
+  build-n-deploy:
+    jobs:
+      - build:
+      - deploy:
+          filters:
+            branches:
+              only: master
