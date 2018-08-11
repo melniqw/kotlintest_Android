@@ -13,10 +13,31 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    def file = rootProject.file('security/signing.properties')
+    def hasSigningProps = file.exists()
+
+    signingConfigs {
+        if (hasSigningProps) {
+            mainRelease {
+                Properties signingProp = new Properties()
+                signingProp.load(file.newInputStream())
+                storeFile = rootProject.file(signingProp.get('storeFile'))
+                storePassword = (String) signingProp.get('storePassword')
+                keyAlias = (String) signingProp.get('keyAlias')
+                keyPassword = (String) signingProp.get('keyPassword')
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            if (hasSigningProps) {
+                signingConfig signingConfigs.mainRelease
+            }
         }
     }
 }
