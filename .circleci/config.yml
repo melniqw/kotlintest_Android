@@ -1,44 +1,30 @@
-defaults: &defaults
-  working_directory: ~/code
-  docker:
-    - image: circleci/android:api-28-alpha
-
 version: 2
-
 jobs:
   build:
-    <<: *defaults
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-28-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
       - checkout
       - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum  "gradle.properties" }}
-      - run: echo $SECRET | base64 --decode | tar -zxvf - -C /secret
-      - run: ll secret
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+#      - run:
+#         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+#         command: sudo chmod +x ./gradlew
       - run:
-          name: Build
-          command: ./gradlew aOriginalDebug --no-daemon -PdisablePreDex -Pdisable-perf-plugin
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
       - save_cache:
           paths:
             - ~/.gradle
-            - ~/code/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum  "gradle.properties" }}
-
-  deploy:
-    <<: *defaults
-    steps:
-      - checkout
-      - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum  "gradle.properties" }}
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
-          name: Build
-          command: ./gradlew aOriginalRelease --no-daemon -PdisablePreDex -Pdisable-perf-plugin
-
-workflows:
-  version: 2
-  build-n-deploy:
-    jobs:
-      - build:
-      - deploy:
-          filters:
-            branches:
-              only: master
+          name: Run Tests
+          command: ./gradlew lint test
+      - store_artifacts:
+          path: app/build/reports
+          destination: reports
+      - store_test_results:
+          path: app/build/test-results
