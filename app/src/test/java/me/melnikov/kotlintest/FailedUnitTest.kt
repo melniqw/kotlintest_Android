@@ -9,7 +9,7 @@ import org.junit.Assert.*
  */
 class FailedUnitTest {
     @Test
-    fun thisShouldFailed() {
-        assertTrue(1 == 2)
+    fun andNowThisWillSucceed() {
+        assertTrue(1 == 1)
     }
 }
