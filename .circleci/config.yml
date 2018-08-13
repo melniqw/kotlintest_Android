@@ -20,33 +20,32 @@ jobs:
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-      ###########
-      # save test results
-      ###########
+
       - run:
-          name: Run Tests
-          command: ./gradlew lint test
-      - store_test_results:
-          path: app/build/test-results
-          destination: test-results/
-      ###########
-      # save reports
-      ###########
+          name: Run Unit Tests
+          command: ./gradlew :app:test
       - store_artifacts:
           path: app/build/reports
-          destination: reports
-      ###########
-      # save apk
-      ###########
+          destination: app/reports
+      - store_test_results:
+          path: app/build/test-results
+          destination: app/test-results
+
       - run:
-          name: Initial build
+          name: Run Lint Checks
+          command: ./gradlew lint
+      - store_artifacts:
+          path: app/build/reports
+          destination: app/reports
+
+      - run:
+          name: Initial Build
           command: ./gradlew clean assembleRelease --no-daemon --stacktrace
       - store_artifacts:
           path: app/build/outputs/apk/
-          destination: apks/
-      ###########
-      # deploy apk to fabric
-      ###########
+          destination: app/apks
+
+      # push to fabric
 #      - deploy:
 #          name: Deploy to Fabric
 #          command: |
