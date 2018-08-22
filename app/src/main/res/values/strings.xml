@@ -2,5 +2,10 @@
     <string name="app_name">Kotlin Test</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_gallery">Gallery</string>
+
+    <string name="nothing">Nothing</string>
+    <string name="url">Url</string>
+    <string name="file">File</string>
+
 </resources>

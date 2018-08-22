@@ -14,4 +14,7 @@ interface MainView : MvpView {
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showDashboard()
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun showGallery()
 }

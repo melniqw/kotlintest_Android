@@ -12,11 +12,18 @@ import me.melnikov.kotlintest.ui.dashboard.DashboardView
 class DashboardPresenter : MvpPresenter<DashboardView>() {
 
     init {
-        ApplicationLoader.appComponent.inject(this)
+        ApplicationLoader.instance.appComponent.inject(this)
     }
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
     }
 
+    fun onButton1Click() {
+        viewState.setText("wtf")
+    }
+
+    fun onButton2Click() {
+        viewState.setText("omg")
+    }
 }

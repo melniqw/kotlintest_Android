@@ -1,4 +1,4 @@
-package me.melnikov.kotlintest.model
+package me.melnikov.kotlintest.data.model
 
 /**
  * Created by melniqw on 03.08.2018.
