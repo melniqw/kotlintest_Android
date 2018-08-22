@@ -10,6 +10,7 @@ import me.melnikov.kotlintest.Cleanable
 import me.melnikov.kotlintest.R
 import me.melnikov.kotlintest.presentation.main.MainPresenter
 import me.melnikov.kotlintest.ui.dashboard.DashboardActivity
+import me.melnikov.kotlintest.ui.gallery.GalleryActivity
 
 class MainActivity : MvpAppCompatActivity(), MainView, Cleanable {
 
@@ -17,8 +18,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, Cleanable {
     lateinit var presenter: MainPresenter
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        presenter.showUsers()
-
         when (item.itemId) {
             R.id.navigation_home -> {
                 message.setText(R.string.title_home)
@@ -28,8 +27,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, Cleanable {
                 presenter.showDashboard()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_notifications -> {
-                message.setText(R.string.title_notifications)
+            R.id.navigation_gallery -> {
+                presenter.showGallery()
                 return@OnNavigationItemSelectedListener true
             }
             else -> {
@@ -51,6 +50,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, Cleanable {
 
     override fun showDashboard() {
         startActivity(DashboardActivity.newIntent(this))
+    }
+
+    override fun showGallery() {
+        startActivity(GalleryActivity.newIntent(this))
     }
 
     override fun clean() {

@@ -4,9 +4,9 @@ import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import me.melnikov.kotlintest.ApplicationLoader
 import me.melnikov.kotlintest.analytics.Analytics
-import me.melnikov.kotlintest.model.Human
-import me.melnikov.kotlintest.model.Speed
-import me.melnikov.kotlintest.model.User
+import me.melnikov.kotlintest.data.model.Human
+import me.melnikov.kotlintest.data.model.Speed
+import me.melnikov.kotlintest.data.model.User
 import me.melnikov.kotlintest.ui.main.MainView
 import javax.inject.Inject
 
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class MainPresenter : MvpPresenter<MainView>() {
 
     init {
-        ApplicationLoader.appComponent.inject(this)
+        ApplicationLoader.instance.appComponent.inject(this)
     }
 
     @Inject
@@ -46,5 +46,9 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     fun showDashboard() {
         viewState.showDashboard()
+    }
+
+    fun showGallery() {
+        viewState.showGallery()
     }
 }

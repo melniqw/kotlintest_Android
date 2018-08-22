@@ -1,4 +1,4 @@
-package me.melnikov.kotlintest.model
+package me.melnikov.kotlintest.data.model
 
 import com.google.gson.annotations.SerializedName
 

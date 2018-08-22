@@ -1,4 +1,4 @@
-package me.melnikov.kotlintest.model
+package me.melnikov.kotlintest.data.model
 
 import com.google.gson.annotations.SerializedName
 
@@ -13,5 +13,4 @@ data class User(
         @SerializedName("last_logged_in") val lastLoggedIn : Long
 ) : Human(null) {
 
-    lateinit var omg : String
 }

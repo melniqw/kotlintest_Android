@@ -2,12 +2,13 @@ package me.melnikov.kotlintest
 
 import android.app.Application
 import android.arch.lifecycle.*
+import android.content.Context
 import me.melnikov.kotlintest.analytics.Analytics
-import me.melnikov.kotlintest.analytics.MultiAnalytics
 import me.melnikov.kotlintest.dagger.component.AppComponent
 import me.melnikov.kotlintest.dagger.component.DaggerAppComponent
 import me.melnikov.kotlintest.dagger.module.AppModule
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Created by melniqw on 01.08.2018.
@@ -15,43 +16,37 @@ import timber.log.Timber
 class ApplicationLoader : Application(), LifecycleObserver {
 
     companion object {
-        lateinit var appComponent: AppComponent
+        lateinit var instance: ApplicationLoader
+
+        fun get(context: Context) : ApplicationLoader {
+            return context.applicationContext as ApplicationLoader
+        }
     }
-    private lateinit var analytics: Analytics
+
+    lateinit var appComponent: AppComponent
+
+    @Inject
+    lateinit var analytics: Analytics
 
     override fun onCreate() {
         super.onCreate()
 
-        initAnalytics()
+        instance = this
 
-        initAppComponent()
+        appComponent = buildAppComponent()
+        appComponent.inject(this)
 
-        initTimber()
+        Timber.plant(Timber.DebugTree())
 
-        initLifecycle()
+        ProcessLifecycleOwner.get().lifecycle.addObserver(ApplicationLifecycle())
 
     }
 
-    private fun initAnalytics() {
-        analytics = MultiAnalytics(this)
-    }
-
-    private fun initAppComponent() {
-        appComponent = DaggerAppComponent.builder()
+    protected fun buildAppComponent() : AppComponent {
+        return DaggerAppComponent.builder()
                 .appModule(AppModule(this))
                 .build()
-        appComponent.inject(this)
     }
-
-    private fun initTimber() {
-        Timber.plant(Timber.DebugTree())
-    }
-
-    private fun initLifecycle() {
-        ProcessLifecycleOwner.get().lifecycle.addObserver(ApplicationLifecycle())
-    }
-
-    fun getAnalytics() : Analytics = analytics
 
     inner class ApplicationLifecycle : LifecycleObserver {
 

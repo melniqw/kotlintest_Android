@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
+import kotlinx.android.synthetic.main.activity_dashboard.*
 import me.melnikov.kotlintest.R
 import me.melnikov.kotlintest.presentation.dashboard.DashboardPresenter
 
@@ -23,5 +24,12 @@ class DashboardActivity : MvpAppCompatActivity(), DashboardView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
+
+        button1.setOnClickListener { presenter.onButton1Click() }
+        button2.setOnClickListener { presenter.onButton2Click() }
+    }
+
+    override fun setText(text: String) {
+        etText.setText(text)
     }
 }
