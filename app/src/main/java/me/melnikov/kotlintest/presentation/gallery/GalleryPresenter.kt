@@ -2,17 +2,14 @@ package me.melnikov.kotlintest.presentation.gallery
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import dagger.android.AndroidInjection
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import me.melnikov.kotlintest.ApplicationLoader
 import me.melnikov.kotlintest.data.content.ContentManager
 import me.melnikov.kotlintest.data.content.MediaAlbum
 import me.melnikov.kotlintest.data.content.MediaFile
 import me.melnikov.kotlintest.ui.gallery.GalleryView
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -32,6 +29,11 @@ class GalleryPresenter : MvpPresenter<GalleryView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
     }
 
     fun loadMediaAlbums() {
@@ -74,7 +76,7 @@ class GalleryPresenter : MvpPresenter<GalleryView>() {
     }
 
     private fun handleLoadMediaFiles(mediaFiles: List<MediaFile>) {
-        if (mediaFiles.isEmpty()) {
+        if (mediaFiles.size == 0) {
             viewState.showEmpty()
         } else {
             viewState.showImages(mediaFiles)

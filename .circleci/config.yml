@@ -3,7 +3,9 @@ defaults: &defaults
   docker:
     - image: circleci/android:api-28-alpha
   environment:
-    JVM_OPTS: -Xmx3200m
+    JVM_OPTS: "-Xmx1024m"
+#    _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
 
 version: 2
 jobs:
@@ -17,19 +19,31 @@ jobs:
 #         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
 #         command: sudo chmod +x ./gradlew
       - run:
-          name: Download Dependencies
+          name: Download dependencies
           command: ./gradlew androidDependencies
       - save_cache:
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
 
-  test:
+  lint:
     <<: *defaults
     steps:
       - checkout
       - run:
-          name: Run Unit Tests
+          name: Run lint checks
+          command: ./gradlew lint
+      - store_artifacts:
+          path: app/build/reports
+          destination: app/reports
+
+
+  unit-test:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Unit testing
           command: ./gradlew :app:test
       - store_artifacts:
           path: app/build/reports
@@ -37,19 +51,46 @@ jobs:
       - store_test_results:
           path: app/build/test-results
           destination: app/test-results
+
+  android-test:
+    <<: *defaults
+    steps:
+      - checkout
+#      - run:
+#          name: See available android system images list
+#          command: sdkmanager — list — verbose | grep system-images
       - run:
-          name: Run Lint Checks
-          command: ./gradlew lint
+          name: Install custom system image
+          command: sdkmanager "system-images;android-22;default;armeabi-v7a"
+      - run:
+          name: Create AVD
+          command: echo "no" | avdmanager create avd -n test -k "system-images;android-22;default;armeabi-v7a"
+      - run:
+          name: Launch emulator
+          command: export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib && emulator64-arm -avd test -noaudio -no-boot-anim -no-window -accel on -verbose
+          background: true
+      - run:
+          name: Wait for emulator
+          command: circle-android wait-for-boot
+      - run:
+          name: Remove lock screen
+          command: adb shell input keyevent 82
+      - run:
+          name: Instrumentation testing
+          command: ./gradlew :app:connectedAndroidTest
       - store_artifacts:
           path: app/build/reports
           destination: app/reports
+      - store_test_results:
+          path: app/build/outputs/androidTest-results
+          destination: app/android-test-results
 
   deploy:
     <<: *defaults
     steps:
       - checkout
       - run:
-          name: Initial Build
+          name: Initial build
           command: ./gradlew clean assembleRelease --no-daemon --stacktrace
       - store_artifacts:
           path: app/build/outputs/apk/
@@ -60,18 +101,23 @@ workflows:
   build_test_deploy:
     jobs:
       - build
-      - test:
+      - lint:
           requires:
             - build
+      - unit-test:
+          requires:
+            - lint
+      - android-test:
+          requires:
+            - unit-test
       - deploy:
           requires:
-            - test
+            - android-test
           filters:
             branches:
               only:
                 - master
 
-      # push to fabric
 #      - deploy:
 #          name: Deploy to Fabric
 #          command: |

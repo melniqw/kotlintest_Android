@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 class MainActivityToDashboardTest {
 
     @get:Rule
-    val activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+    val activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
     @Before
     fun setUp() {

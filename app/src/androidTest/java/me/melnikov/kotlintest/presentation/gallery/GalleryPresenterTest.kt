@@ -9,13 +9,12 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.Mockito.`when` as _when
-
 
 /**
  * Created by melniqw on 18.08.2018.
@@ -44,30 +43,65 @@ class GalleryPresenterTest {
     }
 
     @Test
+    fun loadFilledMediaAlbums() {
+//        doReturn(Single.just(MockedObjects.MOCKED_MEDIA_ALBUMS))
+//                .`when`(contentManager)
+//                .getMediaAlbums()
+//
+//
+//        galleryPresenter.loadMediaAlbums()
+    }
+
+    @Test
+    fun loadEmptyMediaAlbums() {
+        doReturn(Single.just(MockedObjects.EMPTY_MEDIA_ALBUMS))
+                .`when`(contentManager)
+                .getMediaAlbums()
+
+        galleryPresenter.loadMediaAlbums()
+
+        verifyNoMoreInteractions(galleryView)
+    }
+
+    @Test
+    fun loadThrowMediaAlbums() {
+        doReturn(Single.just(MockedObjects.EMPTY_MEDIA_ALBUMS).map { throw Exception() })
+                .`when`(contentManager)
+                .getMediaAlbums()
+
+        galleryPresenter.loadMediaAlbums()
+
+        verify(galleryView, timeout(1000)).showError(ArgumentMatchers.anyString())
+        verifyNoMoreInteractions(galleryView)
+    }
+
+    @Test
     fun loadFilledMediaFiles() {
-        _when(galleryPresenter.contentManager.getMediaFiles(0))
-                .thenReturn(Single.just(MockedObjects.MOCKED_MEDIA_FILES))
+        doReturn(Single.just(MockedObjects.MOCKED_MEDIA_FILES))
+                .`when`(contentManager)
+                .getMediaFiles(ArgumentMatchers.anyInt())
 
         galleryPresenter.loadMediaFiles(0)
 
         verify(galleryView).clearImages()
         verify(galleryView).showProgress()
-        verify(galleryView).showImages(MockedObjects.MOCKED_MEDIA_FILES)
-        verify(galleryView, never()).showEmpty()
+        verify(galleryView, timeout(1000)).showImages(ArgumentMatchers.anyList())
+        verify(galleryView, timeout(1000).times(0)).showEmpty()
         verifyNoMoreInteractions(galleryView)
     }
 
     @Test
     fun loadEmptyMediaFiles() {
-        _when(galleryPresenter.contentManager.getMediaFiles(0))
-                .thenReturn(Single.just(MockedObjects.EMPTY_MEDIA_FILES))
+        doReturn(Single.just(MockedObjects.EMPTY_MEDIA_FILES))
+                .`when`(contentManager)
+                .getMediaFiles(ArgumentMatchers.anyInt())
 
         galleryPresenter.loadMediaFiles(0)
 
         verify(galleryView).clearImages()
         verify(galleryView).showProgress()
-        verify(galleryView, never()).showImages(MockedObjects.EMPTY_MEDIA_FILES)
-        verify(galleryView).showEmpty()
+        verify(galleryView, timeout(1000).times(0)).showImages(ArgumentMatchers.anyList())
+        verify(galleryView, timeout(1000)).showEmpty()
         verifyNoMoreInteractions(galleryView)
     }
 }
